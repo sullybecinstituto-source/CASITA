@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mis Finanzas Hogar - Sullybec</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
+        .glass-card { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border: 1px solid rgba(226, 232, 240, 0.8); }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+    <div class="max-w-6xl mx-auto">
+        <!-- Encabezado -->
+        <header class="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+                <h1 class="text-3xl font-bold text-slate-800">Finanzas Hogar 🏠</h1>
+                <p class="text-slate-500">Control de gastos y deudas personal</p>
+            </div>
+            <div class="bg-indigo-600 text-white px-6 py-3 rounded-2xl shadow-lg shadow-indigo-200">
+                <span class="text-sm block opacity-80 text-center">Saldo Actual</span>
+                <span id="saldo-total" class="text-2xl font-bold">$0.00</span>
+            </div>
+        </header>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Columna Izquierda: Formularios -->
+            <div class="space-y-6">
+                <!-- Registro de Transacción -->
+                <div class="glass-card p-6 rounded-3xl shadow-sm">
+                    <h2 class="text-xl font-semibold mb-4 flex items-center gap-2">
+                        <span>📝</span> Nuevo Movimiento
+                    </h2>
+                    <form id="form-transaccion" class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-slate-600 mb-1">Descripción</label>
+                            <input type="text" id="desc" placeholder="Ej: Supermercado" class="w-full p-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500 outline-none" required>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-slate-600 mb-1">Monto</label>
+                                <input type="number" id="monto" placeholder="0.00" class="w-full p-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500 outline-none" required>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-slate-600 mb-1">Tipo</label>
+                                <select id="tipo" class="w-full p-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500 outline-none">
+                                    <option value="egreso">Gasto (Egreso)</option>
+                                    <option value="ingreso">Ingreso</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-600 mb-1">Categoría</label>
+                            <select id="categoria" class="w-full p-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500 outline-none">
+                                <option value="Comida">🛒 Comida / Súper</option>
+                                <option value="Servicios">💡 Servicios</option>
+                                <option value="Transporte">🚗 Transporte</option>
+                                <option value="Hogar">🏠 Hogar</option>
+                                <option value="Ocio">🎬 Ocio / Salidas</option>
+                                <option value="Sueldo">💰 Sueldo / Otros</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="w-full bg-slate-800 text-white p-3 rounded-xl font-semibold hover:bg-slate-900 transition-colors">
+                            Guardar Registro
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Registro de Deudas -->
+                <div class="glass-card p-6 rounded-3xl shadow-sm border-l-4 border-l-red-400">
+                    <h2 class="text-xl font-semibold mb-4">💳 Registrar Deuda</h2>
+                    <form id="form-deuda" class="space-y-4">
+                        <input type="text" id="nombre-deuda" placeholder="Nombre (ej. Banco)" class="w-full p-3 rounded-xl border border-slate-200 outline-none" required>
+                        <input type="number" id="monto-deuda" placeholder="Monto adeudado" class="w-full p-3 rounded-xl border border-slate-200 outline-none" required>
+                        <button type="submit" class="w-full bg-red-500 text-white p-3 rounded-xl font-semibold hover:bg-red-600 transition-colors">
+                            Añadir Deuda
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Columna Derecha: Visualización y Lista -->
+            <div class="lg:col-span-2 space-y-6">
+                <!-- Resumen Gráfico -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="glass-card p-6 rounded-3xl shadow-sm">
+                        <h3 class="text-lg font-semibold mb-4">Gastos por Categoría</h3>
+                        <canvas id="chartCategorias" height="200"></canvas>
+                    </div>
+                    <div class="glass-card p-6 rounded-3xl shadow-sm flex flex-col justify-center text-center">
+                        <h3 class="text-lg font-semibold mb-2">Total Deudas</h3>
+                        <p id="total-deudas-num" class="text-4xl font-bold text-red-500">$0.00</p>
+                        <div id="lista-deudas" class="mt-4 text-left space-y-2 max-h-32 overflow-y-auto">
+                            <!-- Deudas dinámicas -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Historial -->
+                <div class="glass-card p-6 rounded-3xl shadow-sm">
+                    <h2 class="text-xl font-semibold mb-4">Historial Reciente</h2>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left">
+                            <thead>
+                                <tr class="text-slate-400 text-sm uppercase">
+                                    <th class="pb-3 font-medium">Concepto</th>
+                                    <th class="pb-3 font-medium text-center">Categoría</th>
+                                    <th class="pb-3 font-medium text-right">Monto</th>
+                                    <th class="pb-3 font-medium text-right">Acción</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabla-movimientos" class="divide-y divide-slate-100">
+                                <!-- Filas dinámicas -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- FIREBASE SDKS -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+        import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc, query, orderBy } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
+
+        // CONFIGURACIÓN FIREBASE (Tus credenciales reales)
+        const firebaseConfig = {
+            apiKey: "AIzaSyCRFAaPl2d1ZTy_ZE6uZEpHrffr63MN5Qc",
+            authDomain: "mis-finanzas-hogar-8a7b8.firebaseapp.com",
+            projectId: "mis-finanzas-hogar-8a7b8",
+            storageBucket: "mis-finanzas-hogar-8a7b8.firebasestorage.app",
+            messagingSenderId: "573199459213",
+            appId: "1:573199459213:web:123f617fbc52874b7493c4"
+        };
+
+        // Inicializar Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Referencias de UI
+        const formTrans = document.getElementById('form-transaccion');
+        const formDeuda = document.getElementById('form-deuda');
+        const tablaBody = document.getElementById('tabla-movimientos');
+        const saldoTotalUI = document.getElementById('saldo-total');
+        const totalDeudasUI = document.getElementById('total-deudas-num');
+        const listaDeudasUI = document.getElementById('lista-deudas');
+
+        let myChart;
+
+        // --- FUNCIONES CORE ---
+
+        // Guardar Transacción
+        formTrans.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const trans = {
+                desc: document.getElementById('desc').value,
+                monto: Number(document.getElementById('monto').value),
+                tipo: document.getElementById('tipo').value,
+                categoria: document.getElementById('categoria').value,
+                fecha: new Date().toISOString()
+            };
+            try {
+                await addDoc(collection(db, "transacciones"), trans);
+                formTrans.reset();
+            } catch (err) { console.error("Error al guardar:", err); }
+        });
+
+        // Guardar Deuda
+        formDeuda.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const deuda = {
+                nombre: document.getElementById('nombre-deuda').value,
+                monto: Number(document.getElementById('monto-deuda').value),
+                fecha: new Date().toISOString()
+            };
+            try {
+                await addDoc(collection(db, "deudas"), deuda);
+                formDeuda.reset();
+            } catch (err) { console.error("Error al guardar deuda:", err); }
+        });
+
+        // Escuchar cambios en Transacciones
+        const qTrans = query(collection(db, "transacciones"), orderBy("fecha", "desc"));
+        onSnapshot(qTrans, (snapshot) => {
+            let html = "";
+            let balance = 0;
+            const categoriasData = {};
+
+            snapshot.forEach((docSnap) => {
+                const item = docSnap.data();
+                const id = docSnap.id;
+                const esGasto = item.tipo === 'egreso';
+                
+                balance += esGasto ? -item.monto : item.monto;
+                
+                // Para la gráfica
+                if(esGasto) {
+                    categoriasData[item.categoria] = (categoriasData[item.categoria] || 0) + item.monto;
+                }
+
+                html += `
+                    <tr class="group">
+                        <td class="py-4">
+                            <span class="block font-semibold text-slate-700">${item.desc}</span>
+                            <span class="text-xs text-slate-400">${new Date(item.fecha).toLocaleDateString()}</span>
+                        </td>
+                        <td class="py-4 text-center">
+                            <span class="px-3 py-1 rounded-full text-xs bg-slate-100 text-slate-600">${item.categoria}</span>
+                        </td>
+                        <td class="py-4 text-right font-bold ${esGasto ? 'text-red-500' : 'text-emerald-500'}">
+                            ${esGasto ? '-' : '+'}$${item.monto.toLocaleString()}
+                        </td>
+                        <td class="py-4 text-right">
+                            <button onclick="window.eliminarMovimiento('${id}', 'transacciones')" class="text-slate-300 hover:text-red-400 p-2">✕</button>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            tablaBody.innerHTML = html;
+            saldoTotalUI.innerText = `$${balance.toLocaleString()}`;
+            actualizarGrafica(categoriasData);
+        }, (error) => console.error("Error en Snapshot:", error));
+
+        // Escuchar cambios en Deudas
+        onSnapshot(collection(db, "deudas"), (snapshot) => {
+            let totalD = 0;
+            let htmlD = "";
+            snapshot.forEach((docSnap) => {
+                const item = docSnap.data();
+                totalD += item.monto;
+                htmlD += `
+                    <div class="flex justify-between items-center text-sm bg-red-50 p-2 rounded-lg">
+                        <span class="text-slate-700 font-medium">${item.nombre}</span>
+                        <div class="flex items-center gap-3">
+                            <span class="text-red-600 font-bold">$${item.monto.toLocaleString()}</span>
+                            <button onclick="window.eliminarMovimiento('${docSnap.id}', 'deudas')" class="text-red-300 hover:text-red-600">✕</button>
+                        </div>
+                    </div>
+                `;
+            });
+            totalDeudasUI.innerText = `$${totalD.toLocaleString()}`;
+            listaDeudasUI.innerHTML = htmlD || "<p class='text-slate-400 text-xs italic'>No hay deudas registradas</p>";
+        }, (error) => console.error("Error en Deudas:", error));
+
+        // Función para eliminar (Global)
+        window.eliminarMovimiento = async (id, col) => {
+            if(confirm("¿Seguro que quieres eliminar este registro?")) {
+                await deleteDoc(doc(db, col, id));
+            }
+        };
+
+        // Gráfica
+        function actualizarGrafica(data) {
+            const ctx = document.getElementById('chartCategorias').getContext('2d');
+            const labels = Object.keys(data);
+            const values = Object.values(data);
+
+            if(myChart) myChart.destroy();
+            
+            myChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: values,
+                        backgroundColor: ['#6366f1', '#f43f5e', '#10b981', '#f59e0b', '#8b5cf6', '#0ea5e9'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { position: 'bottom' } },
+                    cutout: '70%'
+                }
+            });
+        }
+    </script>
+</body>
+</html>
+
