@@ -14,6 +14,25 @@
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         .nav-active { color: #4f46e5; border-top: 3px solid #4f46e5; }
+        
+        /* Botón de eliminar optimizado para respuesta inmediata */
+        .btn-delete { 
+            background-color: #fee2e2; 
+            color: #ef4444; 
+            width: 36px; 
+            height: 36px; 
+            border-radius: 10px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+            font-weight: bold;
+            transition: all 0.2s;
+            border: 1px solid #fecaca;
+        }
+        .btn-delete:active {
+            transform: scale(0.9);
+            background-color: #fca5a5;
+        }
     </style>
 </head>
 <body class="pb-24">
@@ -89,14 +108,14 @@
         </div>
     </div>
 
-    <!-- VISTA PLANIFICACIÓN (OCULTA POR DEFECTO) -->
+    <!-- VISTA PLANIFICACIÓN -->
     <div id="view-plan" class="view-content hidden max-w-md mx-auto px-4 pt-6">
         <h2 class="text-xl font-black text-slate-800 mb-2">Gastos Fijos 📝</h2>
-        <p class="text-xs text-slate-500 mb-6">Anota aquí lo que "sí o sí" pagas cada mes. Esto suma tu meta automática.</p>
+        <p class="text-xs text-slate-500 mb-6">Anota aquí lo que pagas cada mes.</p>
 
         <div class="glass-card p-5 mb-6 shadow-sm">
             <form id="form-fijo" class="space-y-3">
-                <input type="text" id="fijo-desc" placeholder="Ej: Renta, Netflix, Luz..." class="w-full btn-touch px-4 rounded-xl bg-slate-50 outline-none text-sm" required>
+                <input type="text" id="fijo-desc" placeholder="Ej: Renta, Netflix..." class="w-full btn-touch px-4 rounded-xl bg-slate-50 outline-none text-sm" required>
                 <div class="flex gap-2">
                     <input type="number" id="fijo-monto" placeholder="Monto $" class="flex-1 btn-touch px-4 rounded-xl bg-slate-50 outline-none text-sm font-bold" required>
                     <button type="submit" class="w-20 btn-touch bg-slate-800 text-white rounded-xl font-bold text-xl">+</button>
@@ -109,11 +128,10 @@
         <div class="mt-8 p-6 bg-indigo-600 rounded-3xl text-white shadow-xl shadow-indigo-100">
             <p class="text-[10px] font-bold uppercase opacity-80 mb-1">Total Meta Mensual</p>
             <h3 id="total-fijos-num" class="text-3xl font-black">$0.00</h3>
-            <p class="text-[10px] mt-2 italic">* Este monto es el que verás como límite en la pantalla principal.</p>
         </div>
     </div>
 
-    <!-- NAVEGACIÓN INFERIOR (Mobile Style) -->
+    <!-- NAVEGACIÓN INFERIOR -->
     <nav class="fixed bottom-0 inset-x-0 bg-white border-t border-slate-100 h-16 flex justify-around items-center z-50">
         <button onclick="switchView('resumen')" id="nav-resumen" class="flex flex-col items-center gap-1 text-[10px] font-bold nav-active pt-2 flex-1 h-full">
             <span class="text-lg">📊</span> RESUMEN
@@ -139,11 +157,10 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // --- NAVEGACIÓN ---
+        // NAVEGACIÓN
         window.switchView = (view) => {
             document.querySelectorAll('.view-content').forEach(v => v.classList.add('hidden'));
             document.querySelectorAll('nav button').forEach(b => b.classList.remove('nav-active', 'text-slate-400'));
-            
             document.getElementById(`view-${view}`).classList.remove('hidden');
             document.getElementById(`nav-${view}`).classList.add('nav-active');
             if(view === 'resumen') document.getElementById('nav-plan').classList.add('text-slate-400');
@@ -153,7 +170,16 @@
         let metaCalculada = 0;
         let todosLosMovimientos = [];
 
-        // --- GESTIÓN GASTOS FIJOS (PLAN) ---
+        // ELIMINAR (SIN CONFIRMACIÓN PARA EVITAR BLOQUEOS EN CANVAS)
+        window.eliminar = async (id, col) => {
+            try {
+                await deleteDoc(doc(db, col, id));
+            } catch (error) {
+                console.error("Error:", error);
+            }
+        };
+
+        // GASTOS FIJOS
         const formFijo = document.getElementById('form-fijo');
         formFijo.addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -175,17 +201,17 @@
                         <p class="font-bold text-slate-800 text-sm">${item.desc}</p>
                         <p class="text-[10px] text-indigo-500 font-black">$${item.monto.toLocaleString()}</p>
                     </div>
-                    <button onclick="window.eliminar('${d.id}', 'gastosFijos')" class="text-slate-300">✕</button>
+                    <button onclick="window.eliminar('${d.id}', 'gastosFijos')" class="btn-delete">✕</button>
                 </div>`;
             });
-            document.getElementById('lista-fijos').innerHTML = html || "<p class='text-center text-slate-300 text-xs py-10'>Tu lista está vacía</p>";
+            document.getElementById('lista-fijos').innerHTML = html || "<p class='text-center text-slate-300 text-xs py-10'>Lista vacía</p>";
             document.getElementById('total-fijos-num').innerText = `$${total.toLocaleString()}`;
             document.getElementById('limite-presupuesto').innerText = `$${total.toLocaleString()}`;
             metaCalculada = total;
             actualizarBarra(document.getElementById('gasto-actual').innerText.replace('$', '').replace(',', ''));
         });
 
-        // --- TRANSACCIONES ---
+        // TRANSACCIONES
         const formTrans = document.getElementById('form-transaccion');
         formTrans.addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -216,7 +242,9 @@
                     <td class="py-3 text-right font-black ${item.tipo==='egreso'?'text-red-500':'text-emerald-500'}">
                         $${item.monto.toLocaleString()}
                     </td>
-                    <td class="pl-4 text-right"><button onclick="window.eliminar('${d.id}', 'transacciones')" class="text-slate-200">✕</button></td>
+                    <td class="pl-4 text-right">
+                        <button onclick="window.eliminar('${d.id}', 'transacciones')" class="btn-delete ml-auto">✕</button>
+                    </td>
                 </tr>`;
             });
             document.getElementById('tabla-movimientos').innerHTML = html;
@@ -232,17 +260,14 @@
             barra.className = porc > 100 ? 'bg-red-500 h-3 rounded-full transition-all' : 'bg-indigo-500 h-3 rounded-full transition-all';
         }
 
-        // --- FUNCIONES GLOBALES ---
-        window.eliminar = async (id, col) => { if(confirm("¿Eliminar?")) await deleteDoc(doc(db, col, id)); };
-
         window.exportarExcel = () => {
-            if(todosLosMovimientos.length === 0) return alert("Nada que exportar");
+            if(todosLosMovimientos.length === 0) return;
             const headers = "fecha,desc,monto,tipo,categoria\n";
             const rows = todosLosMovimientos.map(m => `${m.fecha},"${m.desc}",${m.monto},${m.tipo},${m.categoria}`).join("\n");
             const blob = new Blob([headers + rows], { type: 'text/csv;charset=utf-8;' });
             const link = document.createElement("a");
             link.href = URL.createObjectURL(blob);
-            link.setAttribute("download", `Backup_Casa_${new Date().toLocaleDateString()}.csv`);
+            link.setAttribute("download", `Respaldo_Casa.csv`);
             link.click();
         };
 
@@ -253,20 +278,19 @@
                 const lines = e.target.result.split("\n").slice(1);
                 const batch = writeBatch(db);
                 lines.forEach(line => {
-                    const [fecha, desc, monto, tipo, categoria] = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
-                    if(desc && monto) {
+                    const parts = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
+                    if(parts.length >= 5) {
                         const ref = doc(collection(db, "transacciones"));
                         batch.set(ref, {
-                            fecha: fecha.replace(/"/g, ""),
-                            desc: desc.replace(/"/g, ""),
-                            monto: Number(monto),
-                            tipo: tipo.replace(/"/g, ""),
-                            categoria: categoria ? categoria.replace(/"/g, "").trim() : "General"
+                            fecha: parts[0].replace(/"/g, ""),
+                            desc: parts[1].replace(/"/g, ""),
+                            monto: Number(parts[2]),
+                            tipo: parts[3].replace(/"/g, ""),
+                            categoria: parts[4].replace(/"/g, "").trim()
                         });
                     }
                 });
                 await batch.commit();
-                alert("Importación exitosa");
             };
             reader.readAsText(file);
         });
