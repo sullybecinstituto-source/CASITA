@@ -2,157 +2,140 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Finanzas Hogar + Control Total - Sullybec</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Sullybec - Finanzas Hogar</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
-        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
-        .glass-card { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border: 1px solid rgba(226, 232, 240, 0.8); }
-        .progress-bar { transition: width 0.5s ease-in-out; }
+        body { font-family: 'Inter', sans-serif; background-color: #f1f5f9; -webkit-tap-highlight-color: transparent; }
+        .glass-card { background: white; border: 1px solid #e2e8f0; border-radius: 1.5rem; }
+        .btn-touch { min-height: 48px; display: flex; align-items: center; justify-content: center; }
+        /* Ocultar scrollbar pero permitir scroll */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
-<body class="p-4 md:p-8">
-    <div class="max-w-6xl mx-auto">
-        <!-- Encabezado -->
-        <header class="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
+<body class="pb-20"> <!-- Espacio inferior para que el teclado no tape todo -->
+    <div class="max-w-md mx-auto px-4 pt-6">
+        
+        <!-- Header Compacto Móvil -->
+        <header class="flex justify-between items-center mb-6">
             <div>
-                <h1 class="text-3xl font-bold text-slate-800">Finanzas Hogar 🏠</h1>
-                <p class="text-slate-500">Control de gastos, presupuesto y ahorro</p>
+                <h1 class="text-2xl font-black text-slate-800">Mi Casa 🏠</h1>
+                <p class="text-xs text-slate-500 font-medium">Presupuesto Personal</p>
             </div>
-            <div class="flex gap-4">
-                <div class="bg-indigo-600 text-white px-6 py-3 rounded-2xl shadow-lg shadow-indigo-200">
-                    <span class="text-sm block opacity-80 text-center">Saldo Disponible</span>
-                    <span id="saldo-total" class="text-2xl font-bold">$0.00</span>
-                </div>
+            <div class="text-right">
+                <span class="text-[10px] text-slate-400 font-bold uppercase block">Disponible</span>
+                <span id="saldo-total" class="text-xl font-black text-indigo-600">$0.00</span>
             </div>
         </header>
 
-        <!-- SECCIÓN DE PRESUPUESTO Y EMERGENCIA -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-            <div class="glass-card p-6 rounded-3xl shadow-sm border-t-4 border-t-indigo-500">
-                <div class="flex justify-between items-center mb-2">
-                    <h3 class="font-bold text-slate-700 text-lg">🎯 Presupuesto Mensual</h3>
-                    <button onclick="configurarPresupuesto()" class="text-indigo-600 text-xs font-bold">Configurar</button>
-                </div>
-                <div class="w-full bg-slate-200 rounded-full h-4 mb-2">
-                    <div id="barra-presupuesto" class="progress-bar bg-indigo-500 h-4 rounded-full" style="width: 0%"></div>
-                </div>
-                <p class="text-sm text-slate-500">Has gastado <span id="gasto-actual" class="font-bold">$0</span> de un límite de <span id="limite-presupuesto" class="font-bold">$0</span></p>
+        <!-- Resumen de Meta (Sueldo Casa) -->
+        <section class="glass-card p-5 mb-6 shadow-sm border-b-4 border-b-indigo-500">
+            <div class="flex justify-between items-center mb-3">
+                <h3 class="text-sm font-bold text-slate-700">Meta Gasto Básico</h3>
+                <button onclick="configurarPresupuesto()" class="text-indigo-600 text-[11px] font-bold">AJUSTAR</button>
             </div>
+            <div class="w-full bg-slate-100 rounded-full h-3 mb-2">
+                <div id="barra-presupuesto" class="bg-indigo-500 h-3 rounded-full transition-all duration-500" style="width: 0%"></div>
+            </div>
+            <div class="flex justify-between text-[11px] font-bold uppercase">
+                <span class="text-slate-400">Gastado: <span id="gasto-actual" class="text-slate-700">$0</span></span>
+                <span class="text-slate-400">Meta: <span id="limite-presupuesto" class="text-slate-700">$0</span></span>
+            </div>
+        </section>
 
-            <div class="glass-card p-6 rounded-3xl shadow-sm border-t-4 border-t-emerald-500">
-                <h3 class="font-bold text-slate-700 text-lg mb-2">🛡️ Fondo de Emergencia</h3>
-                <div class="flex items-center justify-between">
-                    <span id="fondo-emergencia" class="text-3xl font-bold text-emerald-600">$0.00</span>
-                    <p class="text-xs text-slate-400 max-w-[150px]">Dinero reservado para no tocar las tarjetas ante imprevistos.</p>
-                </div>
-            </div>
+        <!-- Botones de Respaldo -->
+        <div class="grid grid-cols-2 gap-3 mb-6">
+            <button onclick="exportarExcel()" class="btn-touch bg-white text-slate-700 border border-slate-200 rounded-2xl text-xs font-bold shadow-sm">
+                📥 Descargar Respaldo
+            </button>
+            <label class="btn-touch bg-white text-slate-700 border border-slate-200 rounded-2xl text-xs font-bold shadow-sm cursor-pointer relative">
+                📤 Subir Respaldo
+                <input type="file" id="import-file" class="absolute inset-0 opacity-0 cursor-pointer" accept=".csv">
+            </label>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            
-            <!-- COLUMNA IZQUIERDA: FORMULARIOS -->
-            <div class="space-y-6">
-                <!-- Registro de Movimientos -->
-                <div class="glass-card p-6 rounded-3xl shadow-sm">
-                    <h2 class="text-xl font-semibold mb-4">📝 Movimiento Diario</h2>
-                    <form id="form-transaccion" class="space-y-4">
-                        <input type="text" id="desc" placeholder="Descripción" class="w-full p-3 rounded-xl border border-slate-200 outline-none" required>
-                        <div class="grid grid-cols-2 gap-4">
-                            <input type="number" id="monto" placeholder="Monto" class="w-full p-3 rounded-xl border border-slate-200 outline-none" required>
-                            <select id="tipo" class="w-full p-3 rounded-xl border border-slate-200 outline-none">
-                                <option value="egreso">Gasto</option>
-                                <option value="ingreso">Ingreso</option>
-                                <option value="emergencia">Ahorro Emergencia</option>
-                            </select>
-                        </div>
-                        <select id="categoria" class="w-full p-3 rounded-xl border border-slate-200 outline-none">
-                            <option value="Comida">🛒 Comida</option>
-                            <option value="Servicios">💡 Servicios</option>
-                            <option value="Hogar">🏠 Hogar</option>
-                            <option value="Ocio">🎬 Ocio</option>
-                            <option value="Sueldo">💰 Ingresos</option>
-                        </select>
-                        <button type="submit" class="w-full bg-slate-800 text-white p-3 rounded-xl font-semibold hover:bg-black">Guardar</button>
-                    </form>
+        <!-- Formulario Registro -->
+        <div class="glass-card p-5 mb-6 shadow-sm">
+            <form id="form-transaccion" class="space-y-4">
+                <input type="text" id="desc" placeholder="¿Qué compraste hoy?" class="w-full btn-touch px-4 rounded-xl bg-slate-50 border-transparent focus:border-indigo-500 focus:bg-white outline-none text-sm transition-all" required>
+                
+                <div class="grid grid-cols-2 gap-3">
+                    <input type="number" id="monto" placeholder="Monto $" class="w-full btn-touch px-4 rounded-xl bg-slate-50 border-transparent focus:border-indigo-500 focus:bg-white outline-none text-sm font-bold" required>
+                    <select id="tipo" class="w-full btn-touch px-4 rounded-xl bg-slate-50 border-transparent outline-none text-sm font-bold">
+                        <option value="egreso">Gasto</option>
+                        <option value="ingreso">Sueldo/Entrada</option>
+                        <option value="emergencia">Ahorro</option>
+                    </select>
                 </div>
 
-                <!-- Registro de Deuda con Tasa -->
-                <div class="glass-card p-6 rounded-3xl shadow-sm border-l-4 border-l-red-500 bg-red-50/30">
-                    <h2 class="text-xl font-semibold mb-2">💳 Deuda Bancaria</h2>
-                    <form id="form-deuda" class="space-y-4">
-                        <input type="text" id="nombre-deuda" placeholder="Ej: Tarjeta Visa" class="w-full p-3 rounded-xl border border-slate-200 outline-none" required>
-                        <input type="number" id="monto-deuda" placeholder="Saldo al corte $" class="w-full p-3 rounded-xl border border-slate-200 outline-none" required>
-                        <div class="grid grid-cols-2 gap-4">
-                            <input type="number" id="tasa-deuda" placeholder="Tasa Anual %" class="w-full p-3 rounded-xl border border-slate-200 outline-none" required>
-                            <input type="number" id="dia-pago" placeholder="Día de pago (1-31)" class="w-full p-3 rounded-xl border border-slate-200 outline-none" required>
-                        </div>
-                        <button type="submit" class="w-full bg-red-500 text-white p-3 rounded-xl font-semibold hover:bg-red-600">Añadir al Plan</button>
-                    </form>
+                <select id="categoria" class="w-full btn-touch px-4 rounded-xl bg-slate-50 border-transparent outline-none text-sm">
+                    <option value="Despensa">🛒 Despensa / Comida</option>
+                    <option value="Servicios">💡 Luz / Agua / Gas</option>
+                    <option value="Renta">🏠 Renta / Hipoteca</option>
+                    <option value="Transporte">🚌 Transporte / Gasolina</option>
+                    <option value="Personal">✨ Personal / Salud</option>
+                    <option value="Deudas">💳 Pago Tarjeta</option>
+                </select>
+
+                <button type="submit" class="w-full btn-touch bg-indigo-600 text-white rounded-2xl font-black text-sm shadow-lg shadow-indigo-100 uppercase tracking-wider">Guardar Movimiento</button>
+            </form>
+        </div>
+
+        <!-- Deudas y Gráfica -->
+        <div class="space-y-6">
+            <div class="glass-card p-5 shadow-sm">
+                <h3 class="text-sm font-black text-slate-800 uppercase mb-4 tracking-tighter">Deudas del Hogar</h3>
+                <div id="lista-deudas" class="space-y-3"></div>
+                <div class="mt-4 pt-4 border-t flex justify-between items-center">
+                    <span class="text-[10px] font-bold text-slate-400">Total Deuda:</span>
+                    <span id="total-deudas-num" class="text-lg font-black text-red-500">$0.00</span>
+                </div>
+                <button onclick="document.getElementById('modal-deuda').classList.toggle('hidden')" class="w-full mt-4 py-2 border-2 border-dashed border-slate-200 rounded-xl text-xs font-bold text-slate-400">+ Añadir Tarjeta</button>
+            </div>
+
+            <div class="glass-card p-5 shadow-sm flex flex-col items-center">
+                <h3 class="text-[10px] font-bold text-slate-400 uppercase mb-4">¿En qué se va el dinero?</h3>
+                <div class="h-48 w-full">
+                    <canvas id="chartCategorias"></canvas>
                 </div>
             </div>
 
-            <!-- COLUMNA DERECHA: LISTADOS Y CALCULADORA -->
-            <div class="lg:col-span-2 space-y-6">
-                
-                <!-- SIMULADOR DE PLAN DE PAGOS -->
-                <div id="simulador-pago" class="glass-card p-6 rounded-3xl shadow-md border-2 border-indigo-200 hidden">
-                    <h3 class="text-lg font-bold text-indigo-800 mb-2">💡 Planificador de Pago Inteligente</h3>
-                    <p id="msg-plan" class="text-sm text-slate-600 mb-4">Viendo estrategia para: <span id="target-name" class="font-bold"></span></p>
-                    
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
-                        <div>
-                            <label class="block text-sm font-medium mb-1">¿Cuánto planeas pagar este mes?</label>
-                            <input type="number" id="input-pago-sim" placeholder="$ 0.00" class="w-full p-4 rounded-2xl border-2 border-indigo-500 text-xl font-bold outline-none">
-                        </div>
-                        <div class="space-y-2 bg-white p-4 rounded-2xl shadow-inner">
-                            <div class="flex justify-between text-sm">
-                                <span>Interés que se queda el Banco:</span>
-                                <span id="res-interes" class="font-bold text-red-500">$0</span>
-                            </div>
-                            <div class="flex justify-between text-sm border-b pb-2">
-                                <span>Abono real a tu Deuda:</span>
-                                <span id="res-capital" class="font-bold text-emerald-600">$0</span>
-                            </div>
-                            <p id="consejo-pago" class="text-xs italic font-medium"></p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Resumen y Deudas -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div class="glass-card p-6 rounded-3xl shadow-sm">
-                        <h3 class="text-lg font-semibold mb-4 text-slate-700">Mis Deudas Actuales</h3>
-                        <div id="lista-deudas" class="space-y-3"></div>
-                        <div class="mt-4 pt-4 border-t text-right">
-                            <span class="text-sm text-slate-500">Deuda Total:</span>
-                            <span id="total-deudas-num" class="text-xl font-bold text-red-600 ml-2">$0.00</span>
-                        </div>
-                    </div>
-                    <div class="glass-card p-6 rounded-3xl shadow-sm">
-                        <canvas id="chartCategorias" height="200"></canvas>
-                    </div>
-                </div>
-
-                <!-- Historial de Gastos -->
-                <div class="glass-card p-6 rounded-3xl shadow-sm">
-                    <h2 class="text-xl font-semibold mb-4 text-slate-700">Historial Reciente</h2>
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left">
-                            <tbody id="tabla-movimientos" class="divide-y divide-slate-100"></tbody>
-                        </table>
-                    </div>
+            <!-- Historial -->
+            <div class="glass-card p-5 shadow-sm overflow-hidden">
+                <h3 class="text-sm font-black text-slate-800 uppercase mb-4">Últimos Movimientos</h3>
+                <div class="overflow-x-auto no-scrollbar">
+                    <table class="w-full text-xs">
+                        <tbody id="tabla-movimientos" class="divide-y divide-slate-50"></tbody>
+                    </table>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- FIREBASE SDKS -->
+    <!-- MODAL DEUDA (OCULTO POR DEFECTO) -->
+    <div id="modal-deuda" class="fixed inset-0 bg-black/50 hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-sm rounded-3xl p-6">
+            <h2 class="text-lg font-bold mb-4">Añadir Deuda</h2>
+            <form id="form-deuda" class="space-y-3">
+                <input type="text" id="nombre-deuda" placeholder="Nombre (Ej: Visa)" class="w-full p-3 bg-slate-100 rounded-xl outline-none" required>
+                <input type="number" id="monto-deuda" placeholder="Saldo Actual $" class="w-full p-3 bg-slate-100 rounded-xl outline-none" required>
+                <input type="number" id="tasa-deuda" placeholder="Tasa % Anual" class="w-full p-3 bg-slate-100 rounded-xl outline-none" required>
+                <input type="number" id="dia-pago" placeholder="Día de corte (1-31)" class="w-full p-3 bg-slate-100 rounded-xl outline-none" required>
+                <div class="flex gap-2">
+                    <button type="button" onclick="document.getElementById('modal-deuda').classList.add('hidden')" class="flex-1 p-3 text-slate-400 font-bold">Cerrar</button>
+                    <button type="submit" class="flex-1 p-3 bg-red-500 text-white rounded-xl font-bold">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- FIREBASE & LOGIC -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
-        import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc, query, orderBy, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc, query, orderBy, setDoc, getDoc, writeBatch } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyCRFAaPl2d1ZTy_ZE6uZEpHrffr63MN5Qc",
@@ -166,15 +149,15 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // UI Elements
         const formTrans = document.getElementById('form-transaccion');
         const formDeuda = document.getElementById('form-deuda');
         const tablaBody = document.getElementById('tabla-movimientos');
         const listaDeudasUI = document.getElementById('lista-deudas');
         let myChart;
         let presupuestoLimite = 0;
+        let todosLosMovimientos = [];
 
-        // Cargar Presupuesto
+        // Cargar Configuración Inicial
         async function cargarConfig() {
             const docRef = doc(db, "config", "presupuesto");
             const docSnap = await getDoc(docRef);
@@ -186,11 +169,10 @@
         cargarConfig();
 
         window.configurarPresupuesto = async () => {
-            const nuevo = prompt("¿Cuál es tu límite de gasto mensual?", presupuestoLimite);
+            const nuevo = prompt("¿Cuánto es lo MÍNIMO que necesitas para gastos de casa este mes?", presupuestoLimite);
             if (nuevo) {
                 presupuestoLimite = Number(nuevo);
                 await setDoc(doc(db, "config", "presupuesto"), { limite: presupuestoLimite });
-                document.getElementById('limite-presupuesto').innerText = `$${presupuestoLimite.toLocaleString()}`;
                 location.reload();
             }
         };
@@ -219,13 +201,17 @@
                 fecha: new Date().toISOString()
             });
             formDeuda.reset();
+            document.getElementById('modal-deuda').classList.add('hidden');
         });
 
-        // Cargar Transacciones y Actualizar UI
+        // Escuchar Transacciones
         onSnapshot(query(collection(db, "transacciones"), orderBy("fecha", "desc")), (snap) => {
-            let html = ""; let bal = 0; let totalGastos = 0; let emergencia = 0; let catData = {};
+            let html = ""; let bal = 0; let totalGastos = 0; let catData = {};
+            todosLosMovimientos = [];
+            
             snap.forEach(d => {
                 const item = d.data();
+                todosLosMovimientos.push({id: d.id, ...item});
                 if(item.tipo === 'egreso') {
                     bal -= item.monto;
                     totalGastos += item.monto;
@@ -233,90 +219,102 @@
                 } else if(item.tipo === 'ingreso') {
                     bal += item.monto;
                 } else if(item.tipo === 'emergencia') {
-                    emergencia += item.monto;
-                    bal -= item.monto; // Se resta del disponible porque se "aparta"
+                    bal -= item.monto;
                 }
 
                 html += `<tr>
-                    <td class="py-3"><span class="font-bold text-slate-700">${item.desc}</span><br><small class="text-slate-400">${item.categoria || 'Ahorro'}</small></td>
-                    <td class="py-3 text-right font-bold ${item.tipo==='egreso'?'text-red-500':(item.tipo==='emergencia'?'text-blue-500':'text-emerald-500')}">
-                        ${item.tipo==='egreso'?'-':'+'}$${item.monto}
+                    <td class="py-4"><span class="font-bold text-slate-700">${item.desc}</span><br><span class="text-[9px] font-bold text-slate-400 uppercase">${item.categoria}</span></td>
+                    <td class="py-4 text-right font-black ${item.tipo==='egreso'?'text-red-500':'text-emerald-500'}">
+                        ${item.tipo==='egreso'?'-':'+'}$${item.monto.toLocaleString()}
                     </td>
-                    <td class="text-right"><button onclick="window.eliminar('${d.id}', 'transacciones')" class="text-slate-300 hover:text-red-500">✕</button></td>
+                    <td class="pl-4 text-right"><button onclick="window.eliminar('${d.id}', 'transacciones')" class="text-slate-200">✕</button></td>
                 </tr>`;
             });
             
             tablaBody.innerHTML = html;
             document.getElementById('saldo-total').innerText = `$${bal.toLocaleString()}`;
-            document.getElementById('fondo-emergencia').innerText = `$${emergencia.toLocaleString()}`;
             document.getElementById('gasto-actual').innerText = `$${totalGastos.toLocaleString()}`;
             
-            // Actualizar Barra Presupuesto
             const porc = presupuestoLimite > 0 ? (totalGastos / presupuestoLimite) * 100 : 0;
             const barra = document.getElementById('barra-presupuesto');
             barra.style.width = Math.min(porc, 100) + '%';
-            if(porc > 90) barra.className = "progress-bar bg-red-500 h-4 rounded-full";
-            else if(porc > 70) barra.className = "progress-bar bg-orange-500 h-4 rounded-full";
-            else barra.className = "progress-bar bg-indigo-500 h-4 rounded-full";
+            if(porc > 100) barra.classList.replace('bg-indigo-500', 'bg-red-500');
 
             actualizarGrafica(catData);
         });
 
-        // Cargar Deudas
+        // Escuchar Deudas
         onSnapshot(collection(db, "deudas"), (snap) => {
             let total = 0; let html = "";
-            const hoy = new Date().getDate();
             snap.forEach(d => {
                 const item = d.data();
                 total += item.monto;
-                const interesMensual = (item.monto * (item.tasa / 100)) / 12;
-                const esUrgente = item.diaPago >= hoy && (item.diaPago - hoy) <= 5;
-
                 html += `
-                <div class="p-3 bg-white border ${esUrgente?'border-red-300 bg-red-50':'border-slate-100'} rounded-2xl flex justify-between items-center shadow-sm">
-                    <div>
-                        <p class="font-bold text-slate-700">${item.nombre} ${esUrgente?'⚠️':''}</p>
-                        <p class="text-[10px] text-slate-400 uppercase font-bold">Paga el día: ${item.diaPago}</p>
-                        <p class="text-[10px] text-red-400 font-bold uppercase">Interés: $${interesMensual.toFixed(2)}</p>
+                <div class="p-3 bg-slate-50 rounded-xl flex justify-between items-center border border-slate-100">
+                    <div class="flex-1">
+                        <p class="font-bold text-slate-800 text-xs">${item.nombre.toUpperCase()}</p>
+                        <p class="text-[9px] text-slate-400 font-bold uppercase">Corte: Día ${item.diaPago}</p>
                     </div>
                     <div class="text-right">
-                        <p class="font-bold text-slate-800">$${item.monto.toLocaleString()}</p>
-                        <button onclick="window.prepararPlan('${item.nombre}', ${item.monto}, ${item.tasa})" class="text-xs text-indigo-600 underline font-semibold">Estrategia</button>
-                        <button onclick="window.eliminar('${d.id}', 'deudas')" class="ml-2 text-slate-300">✕</button>
+                        <p class="font-black text-slate-800 text-sm">$${item.monto.toLocaleString()}</p>
+                        <button onclick="window.eliminar('${d.id}', 'deudas')" class="text-[9px] text-slate-300 font-bold uppercase">Eliminar</button>
                     </div>
                 </div>`;
             });
-            listaDeudasUI.innerHTML = html || "<p class='text-center text-slate-400 py-4'>Sin deudas</p>";
+            listaDeudasUI.innerHTML = html || "<p class='text-center text-slate-300 text-[10px]'>Sin deudas</p>";
             document.getElementById('total-deudas-num').innerText = `$${total.toLocaleString()}`;
         });
 
-        window.prepararPlan = (nombre, monto, tasa) => {
-            const simulador = document.getElementById('simulador-pago');
-            const input = document.getElementById('input-pago-sim');
-            simulador.classList.remove('hidden');
-            simulador.scrollIntoView({behavior: 'smooth'});
-            document.getElementById('target-name').innerText = nombre;
-
-            const interesMensual = (monto * (tasa / 100)) / 12;
-
-            input.oninput = () => {
-                const pago = Number(input.value);
-                const capital = Math.max(0, pago - interesMensual);
-                document.getElementById('res-interes').innerText = `$${interesMensual.toFixed(2)}`;
-                document.getElementById('res-capital').innerText = `$${capital.toFixed(2)}`;
-                
-                const consejo = document.getElementById('consejo-pago');
-                if(pago <= interesMensual) {
-                    consejo.innerText = "⚠️ Alerta: El banco gana. No estás bajando tu deuda.";
-                    consejo.className = "text-xs italic font-medium text-red-600";
-                } else {
-                    consejo.innerText = `¡Bien! Estás abonando $${capital.toFixed(2)} a tu libertad financiera.`;
-                    consejo.className = "text-xs italic font-medium text-emerald-600";
-                }
-            };
+        // EXPORTAR A EXCEL (CSV)
+        window.exportarExcel = () => {
+            if(todosLosMovimientos.length === 0) return alert("No hay datos para exportar");
+            const headers = "fecha,desc,monto,tipo,categoria\n";
+            const rows = todosLosMovimientos.map(m => `${m.fecha},"${m.desc}",${m.monto},${m.tipo},${m.categoria}`).join("\n");
+            const blob = new Blob([headers + rows], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.setAttribute("download", `Respaldo_Hogar_${new Date().toLocaleDateString()}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
         };
 
-        window.eliminar = async (id, col) => { if(confirm("¿Seguro que quieres eliminar este registro?")) await deleteDoc(doc(db, col, id)); };
+        // IMPORTAR DESDE EXCEL (CSV)
+        document.getElementById('import-file').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = async function(e) {
+                const text = e.target.result;
+                const lines = text.split("\n").slice(1); // Saltar headers
+                const batch = writeBatch(db);
+                
+                let importCount = 0;
+                for(let line of lines) {
+                    if(!line.trim()) continue;
+                    const [fecha, desc, monto, tipo, categoria] = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
+                    if(desc && monto) {
+                        const newDocRef = doc(collection(db, "transacciones"));
+                        batch.set(newDocRef, {
+                            fecha: fecha.replace(/"/g, ""),
+                            desc: desc.replace(/"/g, ""),
+                            monto: Number(monto),
+                            tipo: tipo.replace(/"/g, ""),
+                            categoria: categoria.replace(/"/g, "").trim()
+                        });
+                        importCount++;
+                    }
+                }
+                
+                if(importCount > 0) {
+                    await batch.commit();
+                    alert(`¡Éxito! Se importaron ${importCount} movimientos.`);
+                }
+            };
+            reader.readAsText(file);
+        });
+
+        window.eliminar = async (id, col) => { if(confirm("¿Eliminar?")) await deleteDoc(doc(db, col, id)); };
 
         function actualizarGrafica(data) {
             const ctx = document.getElementById('chartCategorias').getContext('2d');
@@ -325,9 +323,13 @@
                 type: 'doughnut',
                 data: {
                     labels: Object.keys(data),
-                    datasets: [{ data: Object.values(data), backgroundColor: ['#6366f1', '#f43f5e', '#10b981', '#f59e0b', '#8b5cf6'] }]
+                    datasets: [{ data: Object.values(data), backgroundColor: ['#6366f1', '#f43f5e', '#10b981', '#f59e0b', '#8b5cf6'], borderWeight: 0 }]
                 },
-                options: { plugins: { legend: { display: false } }, cutout: '70%', maintainAspectRatio: false }
+                options: { 
+                    plugins: { legend: { display: true, position: 'bottom', labels: { boxWidth: 8, font: { size: 9, weight: 'bold' } } } },
+                    cutout: '80%', 
+                    maintainAspectRatio: false 
+                }
             });
         }
     </script>
