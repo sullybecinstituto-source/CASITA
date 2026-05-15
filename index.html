@@ -3,147 +3,235 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Sullybec - Finanzas Hogar</title>
+    <title>Sullybec - Paz Financiera</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
-        body { font-family: 'Inter', sans-serif; background-color: #f1f5f9; -webkit-tap-highlight-color: transparent; }
-        .glass-card { background: white; border: 1px solid #e2e8f0; border-radius: 1.5rem; }
-        .btn-touch { min-height: 48px; display: flex; align-items: center; justify-content: center; }
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        .nav-active { color: #4f46e5; border-top: 3px solid #4f46e5; }
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
         
-        /* Botón de eliminar optimizado para respuesta inmediata */
-        .btn-delete { 
-            background-color: #fee2e2; 
-            color: #ef4444; 
-            width: 36px; 
-            height: 36px; 
-            border-radius: 10px; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center;
-            font-weight: bold;
-            transition: all 0.2s;
-            border: 1px solid #fecaca;
+        :root {
+            --bg-serenity: #faf9ff; /* Lavanda blanquecino */
+            --lavender-soft: #e8e7ff;
+            --lavender-deep: #6d67e4;
+            --mint-calm: #d1fae5;
+            --text-main: #474554;
         }
-        .btn-delete:active {
-            transform: scale(0.9);
-            background-color: #fca5a5;
+
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            background-color: var(--bg-serenity); 
+            color: var(--text-main);
+            -webkit-tap-highlight-color: transparent; 
+        }
+
+        /* Tarjetas con bordes extra redondeados y sombras de nube */
+        .zen-card { 
+            background: white; 
+            border: 1px solid #f0efff;
+            border-radius: 2rem; 
+            box-shadow: 0 10px 25px -5px rgba(109, 103, 228, 0.05);
+        }
+
+        .balance-gradient {
+            background: linear-gradient(135deg, #6d67e4 0%, #a099ff 100%);
+            color: white;
+            border-radius: 2.25rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Inputs ultra suaves */
+        .input-zen {
+            background-color: #f3f2ff;
+            border: 1.5px solid transparent;
+            border-radius: 1.25rem;
+            padding: 1rem;
+            font-size: 0.875rem;
+            width: 100%;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .input-zen:focus {
+            background-color: white;
+            border-color: var(--lavender-soft);
+            box-shadow: 0 0 0 4px rgba(109, 103, 228, 0.1);
+        }
+
+        /* Botón Lavanda */
+        .btn-zen-primary {
+            background-color: var(--lavender-deep);
+            color: white;
+            border-radius: 1.25rem;
+            font-weight: 700;
+            font-size: 0.875rem;
+            padding: 1.1rem;
+            width: 100%;
+            box-shadow: 0 10px 20px -5px rgba(109, 103, 228, 0.4);
+            transition: all 0.3s;
+        }
+
+        .btn-zen-primary:active { transform: scale(0.96); }
+
+        .btn-delete { 
+            color: #ffa1a1; 
+            padding: 0.5rem;
+            font-weight: 800;
+            transition: color 0.2s;
+        }
+        
+        .btn-delete:hover { color: #f87171; }
+
+        /* Navegación */
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #b0aec3;
+            font-weight: 700;
+            font-size: 0.65rem;
+            gap: 4px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-item.active {
+            color: var(--lavender-deep);
+        }
+
+        .nav-indicator {
+            width: 20px;
+            height: 4px;
+            background: transparent;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .active .nav-indicator {
+            background: var(--lavender-deep);
+            width: 24px;
+        }
+
+        /* Animación de entrada */
+        .fade-in {
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
     </style>
 </head>
-<body class="pb-24">
+<body class="pb-32">
     
-    <!-- CONTENIDO PRINCIPAL -->
-    <div id="view-resumen" class="view-content max-w-md mx-auto px-4 pt-6">
-        <!-- Header -->
-        <header class="flex justify-between items-center mb-6">
+    <!-- VISTA 1: RESUMEN -->
+    <div id="view-resumen" class="view-content max-w-md mx-auto px-6 pt-10 fade-in">
+        <div class="flex justify-between items-center mb-8">
             <div>
-                <h1 class="text-2xl font-black text-slate-800">Mi Casa 🏠</h1>
-                <p class="text-xs text-slate-500 font-medium">Control de Gastos</p>
+                <h1 class="text-xl font-extrabold tracking-tight">Todo está bien ✨</h1>
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Sullybec, respira y fluye</p>
             </div>
-            <div class="text-right">
-                <span class="text-[10px] text-slate-400 font-bold uppercase block">Saldo Actual</span>
-                <span id="saldo-total" class="text-xl font-black text-indigo-600">$0.00</span>
-            </div>
-        </header>
+            <div class="w-11 h-11 rounded-2xl bg-white shadow-sm border border-lavender-soft flex items-center justify-center font-bold text-sm text-indigo-400">SB</div>
+        </div>
 
-        <!-- Meta Dinámica -->
-        <section class="glass-card p-5 mb-6 shadow-sm border-b-4 border-b-indigo-500">
-            <div class="flex justify-between items-center mb-3">
-                <h3 class="text-sm font-bold text-slate-700">Meta Mensual (Auto)</h3>
-                <span class="text-[10px] bg-indigo-50 text-indigo-600 px-2 py-1 rounded-lg font-bold">CALCULADO</span>
+        <!-- Tarjeta de Saldo Principal -->
+        <div class="balance-gradient p-8 mb-10 shadow-xl shadow-indigo-100">
+            <div class="flex justify-between items-start mb-8">
+                <p class="text-xs font-semibold opacity-80 tracking-wide">Saldo disponible ahora</p>
+                <span class="text-xl opacity-90">🌿</span>
             </div>
-            <div class="w-full bg-slate-100 rounded-full h-3 mb-2">
-                <div id="barra-presupuesto" class="bg-indigo-500 h-3 rounded-full transition-all duration-500" style="width: 0%"></div>
-            </div>
-            <div class="flex justify-between text-[11px] font-bold uppercase">
-                <span class="text-slate-400">Gastado: <span id="gasto-actual" class="text-slate-700">$0</span></span>
-                <span class="text-slate-400">Meta: <span id="limite-presupuesto" class="text-slate-700">$0</span></span>
-            </div>
-        </section>
+            <h2 id="saldo-total" class="text-4xl font-extrabold mb-1 tracking-tight">$0.00</h2>
+            <p class="text-[9px] opacity-70 uppercase tracking-[0.2em] mt-4 font-bold">Confía en tu proceso</p>
+        </div>
 
-        <!-- Registro Rápido -->
-        <div class="glass-card p-5 mb-6 shadow-sm">
+        <div class="mb-10">
+            <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4 ml-1">Nuevo Registro</p>
             <form id="form-transaccion" class="space-y-4">
-                <input type="text" id="desc" placeholder="¿En qué gastaste?" class="w-full btn-touch px-4 rounded-xl bg-slate-50 border-transparent focus:border-indigo-500 outline-none text-sm" required>
-                <div class="grid grid-cols-2 gap-3">
-                    <input type="number" id="monto" placeholder="Monto $" class="w-full btn-touch px-4 rounded-xl bg-slate-50 border-transparent outline-none text-sm font-bold" required>
-                    <select id="tipo" class="w-full btn-touch px-4 rounded-xl bg-slate-50 border-transparent outline-none text-sm font-bold">
+                <input type="text" id="desc" placeholder="¿En qué fluyó el dinero?" class="input-zen" required>
+                <div class="flex gap-3">
+                    <input type="number" id="monto" step="0.01" placeholder="Monto $" class="input-zen font-bold" required>
+                    <select id="tipo" class="input-zen w-1/3 font-bold bg-[#f3f2ff]">
                         <option value="egreso">Gasto</option>
-                        <option value="ingreso">Sueldo / Entrada</option>
+                        <option value="ingreso">Sueldo</option>
                     </select>
                 </div>
-                <select id="categoria" class="w-full btn-touch px-4 rounded-xl bg-slate-50 border-transparent outline-none text-sm">
-                    <option value="Despensa">🛒 Despensa / Comida</option>
-                    <option value="Servicios">💡 Luz / Agua / Internet</option>
-                    <option value="Renta">🏠 Renta / Casa</option>
-                    <option value="Transporte">🚌 Transporte</option>
-                    <option value="Personal">✨ Personal / Otros</option>
-                </select>
-                <button type="submit" class="w-full btn-touch bg-indigo-600 text-white rounded-2xl font-black text-sm shadow-lg uppercase">Guardar Gasto</button>
+                <button type="submit" class="btn-zen-primary">Añadir con Calma</button>
             </form>
         </div>
 
-        <!-- Historial Corto -->
-        <div class="glass-card p-5 mb-6 shadow-sm">
-            <h3 class="text-xs font-black text-slate-400 uppercase mb-4">Últimos Movimientos</h3>
-            <div class="overflow-x-auto">
-                <table class="w-full text-xs">
-                    <tbody id="tabla-movimientos" class="divide-y divide-slate-50"></tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- Respaldo -->
-        <div class="grid grid-cols-2 gap-3 mb-6">
-            <button onclick="exportarExcel()" class="btn-touch bg-white text-slate-600 border border-slate-200 rounded-2xl text-[10px] font-bold shadow-sm">📥 Exportar CSV</button>
-            <label class="btn-touch bg-white text-slate-600 border border-slate-200 rounded-2xl text-[10px] font-bold shadow-sm relative cursor-pointer text-center">
-                📤 Importar CSV
-                <input type="file" id="import-file" class="absolute inset-0 opacity-0 cursor-pointer" accept=".csv">
-            </label>
-        </div>
+        <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4 ml-1">Movimientos de hoy</h3>
+        <div id="tabla-movimientos" class="space-y-4"></div>
     </div>
 
-    <!-- VISTA PLANIFICACIÓN -->
-    <div id="view-plan" class="view-content hidden max-w-md mx-auto px-4 pt-6">
-        <h2 class="text-xl font-black text-slate-800 mb-2">Gastos Fijos 📝</h2>
-        <p class="text-xs text-slate-500 mb-6">Anota aquí lo que pagas cada mes.</p>
-
-        <div class="glass-card p-5 mb-6 shadow-sm">
-            <form id="form-fijo" class="space-y-3">
-                <input type="text" id="fijo-desc" placeholder="Ej: Renta, Netflix..." class="w-full btn-touch px-4 rounded-xl bg-slate-50 outline-none text-sm" required>
-                <div class="flex gap-2">
-                    <input type="number" id="fijo-monto" placeholder="Monto $" class="flex-1 btn-touch px-4 rounded-xl bg-slate-50 outline-none text-sm font-bold" required>
-                    <button type="submit" class="w-20 btn-touch bg-slate-800 text-white rounded-xl font-bold text-xl">+</button>
-                </div>
-            </form>
-        </div>
-
-        <div id="lista-fijos" class="space-y-3"></div>
+    <!-- VISTA 2: DEUDAS -->
+    <div id="view-deudas" class="view-content hidden max-w-md mx-auto px-6 pt-10 fade-in">
+        <h1 class="text-xl font-extrabold mb-2">Tus Compromisos 🕊️</h1>
+        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-8">Poco a poco, todo se libera</p>
         
-        <div class="mt-8 p-6 bg-indigo-600 rounded-3xl text-white shadow-xl shadow-indigo-100">
-            <p class="text-[10px] font-bold uppercase opacity-80 mb-1">Total Meta Mensual</p>
-            <h3 id="total-fijos-num" class="text-3xl font-black">$0.00</h3>
+        <div class="zen-card p-8 mb-10 bg-[#fffafa] border-pink-50">
+            <p class="text-xs font-bold text-slate-400 mb-2 uppercase tracking-tighter">Total por liberar</p>
+            <h2 id="total-deuda-num" class="text-4xl font-black text-rose-400 tracking-tighter">$0.00</h2>
+        </div>
+
+        <div class="mb-10">
+            <form id="form-deuda" class="space-y-4">
+                <input type="text" id="deuda-desc" placeholder="Nombre (ej. Banco)" class="input-zen" required>
+                <div class="flex gap-3">
+                    <input type="number" id="deuda-monto" step="0.01" placeholder="Monto $" class="input-zen font-bold" required>
+                    <select id="deuda-tipo" class="input-zen font-bold bg-[#f3f2ff]">
+                        <option value="deuda">Es Deuda</option>
+                        <option value="abono">Es Pago</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn-zen-primary" style="background-color: #f472b6; box-shadow: 0 10px 20px -5px rgba(244, 114, 182, 0.3);">Actualizar Cuenta</button>
+            </form>
+        </div>
+
+        <div id="lista-deudas" class="space-y-4"></div>
+    </div>
+
+    <!-- VISTA 3: GASTOS FIJOS -->
+    <div id="view-plan" class="view-content hidden max-w-md mx-auto px-6 pt-10 fade-in">
+        <h1 class="text-xl font-extrabold mb-2">Presupuesto ☁️</h1>
+        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-8">Tu seguridad mensual</p>
+
+        <div class="mb-10">
+            <form id="form-fijo" class="flex gap-3">
+                <input type="text" id="fijo-desc" placeholder="Servicio" class="input-zen flex-1" required>
+                <input type="number" id="fijo-monto" step="0.01" placeholder="$" class="input-zen w-24 font-bold" required>
+                <button type="submit" class="w-14 bg-indigo-400 text-white rounded-2xl text-xl font-bold">+</button>
+            </form>
+        </div>
+
+        <div id="lista-fijos-container" class="space-y-4 mb-10"></div>
+
+        <div class="zen-card p-8 bg-slate-800 text-white shadow-2xl shadow-slate-200">
+            <p class="text-[10px] font-bold uppercase tracking-[0.2em] opacity-50 mb-2 text-indigo-200">Meta del Mes</p>
+            <h3 id="total-fijos-num" class="text-4xl font-black">$0.00</h3>
         </div>
     </div>
 
-    <!-- NAVEGACIÓN INFERIOR -->
-    <nav class="fixed bottom-0 inset-x-0 bg-white border-t border-slate-100 h-16 flex justify-around items-center z-50">
-        <button onclick="switchView('resumen')" id="nav-resumen" class="flex flex-col items-center gap-1 text-[10px] font-bold nav-active pt-2 flex-1 h-full">
-            <span class="text-lg">📊</span> RESUMEN
+    <!-- NAVEGACIÓN SERENIDAD -->
+    <nav class="fixed bottom-0 inset-x-0 bg-white/80 backdrop-blur-xl border-t border-lavender-soft h-24 flex justify-around items-center px-8 z-50">
+        <button onclick="switchView('resumen')" id="nav-resumen" class="nav-item active">
+            <span class="text-2xl">🌱</span>
+            <span class="mt-1">DIARIO</span>
+            <div class="nav-indicator mt-2"></div>
         </button>
-        <button onclick="switchView('plan')" id="nav-plan" class="flex flex-col items-center gap-1 text-[10px] font-bold text-slate-400 pt-2 flex-1 h-full">
-            <span class="text-lg">📝</span> GASTOS FIJOS
+        <button onclick="switchView('deudas')" id="nav-deudas" class="nav-item">
+            <span class="text-2xl">🕊️</span>
+            <span class="mt-1">DEUDAS</span>
+            <div class="nav-indicator mt-2"></div>
+        </button>
+        <button onclick="switchView('plan')" id="nav-plan" class="nav-item">
+            <span class="text-2xl">☁️</span>
+            <span class="mt-1">FIJOS</span>
+            <div class="nav-indicator mt-2"></div>
         </button>
     </nav>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
-        import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc, query, orderBy, setDoc, getDoc, writeBatch } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc, query, orderBy } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyCRFAaPl2d1ZTy_ZE6uZEpHrffr63MN5Qc",
@@ -157,29 +245,97 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // NAVEGACIÓN
         window.switchView = (view) => {
             document.querySelectorAll('.view-content').forEach(v => v.classList.add('hidden'));
-            document.querySelectorAll('nav button').forEach(b => b.classList.remove('nav-active', 'text-slate-400'));
+            document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
             document.getElementById(`view-${view}`).classList.remove('hidden');
-            document.getElementById(`nav-${view}`).classList.add('nav-active');
-            if(view === 'resumen') document.getElementById('nav-plan').classList.add('text-slate-400');
-            else document.getElementById('nav-resumen').classList.add('text-slate-400');
+            document.getElementById(`nav-${view}`).classList.add('active');
         };
 
-        let metaCalculada = 0;
-        let todosLosMovimientos = [];
-
-        // ELIMINAR (SIN CONFIRMACIÓN PARA EVITAR BLOQUEOS EN CANVAS)
         window.eliminar = async (id, col) => {
-            try {
-                await deleteDoc(doc(db, col, id));
-            } catch (error) {
-                console.error("Error:", error);
-            }
+            await deleteDoc(doc(db, col, id));
         };
 
-        // GASTOS FIJOS
+        // --- LÓGICA DE RESUMEN ---
+        const formTrans = document.getElementById('form-transaccion');
+        formTrans.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            await addDoc(collection(db, "transacciones"), {
+                desc: document.getElementById('desc').value,
+                monto: Number(document.getElementById('monto').value),
+                tipo: document.getElementById('tipo').value,
+                fecha: new Date().toISOString()
+            });
+            formTrans.reset();
+        });
+
+        onSnapshot(query(collection(db, "transacciones"), orderBy("fecha", "desc")), (snap) => {
+            let html = ""; let bal = 0;
+            snap.forEach(d => {
+                const item = d.data();
+                if(item.tipo === 'egreso') bal -= item.monto;
+                else bal += item.monto;
+
+                html += `
+                <div class="zen-card p-5 flex justify-between items-center fade-in">
+                    <div class="flex gap-4 items-center">
+                        <div class="w-12 h-12 rounded-2xl ${item.tipo==='egreso'?'bg-rose-50 text-rose-300':'bg-emerald-50 text-emerald-300'} flex items-center justify-center text-xl">
+                            ${item.tipo==='egreso'?'🌸':'🍃'}
+                        </div>
+                        <div>
+                            <p class="font-bold text-sm text-slate-600">${item.desc}</p>
+                            <p class="text-[10px] text-slate-300 font-bold uppercase tracking-widest">${new Date(item.fecha).toLocaleDateString()}</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <span class="font-black text-sm ${item.tipo==='egreso'?'text-rose-400':'text-emerald-500'}">
+                            ${item.tipo==='egreso'?'-':'+'}$${item.monto.toLocaleString('es-MX')}
+                        </span>
+                        <button onclick="window.eliminar('${d.id}', 'transacciones')" class="btn-delete">✕</button>
+                    </div>
+                </div>`;
+            });
+            document.getElementById('saldo-total').innerText = `$${bal.toLocaleString('es-MX', {minimumFractionDigits:2})}`;
+            document.getElementById('tabla-movimientos').innerHTML = html;
+        });
+
+        // --- LÓGICA DE DEUDAS ---
+        const formDeuda = document.getElementById('form-deuda');
+        formDeuda.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            await addDoc(collection(db, "deudasNuevas"), {
+                desc: document.getElementById('deuda-desc').value,
+                monto: Number(document.getElementById('deuda-monto').value),
+                tipo: document.getElementById('deuda-tipo').value,
+                fecha: new Date().toISOString()
+            });
+            formDeuda.reset();
+        });
+
+        onSnapshot(query(collection(db, "deudasNuevas"), orderBy("fecha", "desc")), (snap) => {
+            let totalD = 0; let html = "";
+            snap.forEach(d => {
+                const item = d.data();
+                if(item.tipo === 'deuda') totalD += item.monto;
+                else totalD -= item.monto;
+
+                html += `
+                <div class="zen-card p-5 flex justify-between items-center border-l-8 ${item.tipo==='deuda'?'border-l-rose-200':'border-l-indigo-200'}">
+                    <div>
+                        <p class="font-bold text-sm text-slate-600">${item.desc}</p>
+                        <p class="text-[9px] font-black text-slate-300 uppercase tracking-widest">${item.tipo==='deuda'?'En proceso':'Pagado'}</p>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <span class="font-black text-sm text-slate-500">$${item.monto.toLocaleString('es-MX')}</span>
+                        <button onclick="window.eliminar('${d.id}', 'deudasNuevas')" class="btn-delete">✕</button>
+                    </div>
+                </div>`;
+            });
+            document.getElementById('total-deuda-num').innerText = `$${totalD.toLocaleString('es-MX', {minimumFractionDigits:2})}`;
+            document.getElementById('lista-deudas').innerHTML = html;
+        });
+
+        // --- LÓGICA DE FIJOS ---
         const formFijo = document.getElementById('form-fijo');
         formFijo.addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -196,103 +352,19 @@
                 const item = d.data();
                 total += item.monto;
                 html += `
-                <div class="glass-card p-4 flex justify-between items-center">
-                    <div>
-                        <p class="font-bold text-slate-800 text-sm">${item.desc}</p>
-                        <p class="text-[10px] text-indigo-500 font-black">$${item.monto.toLocaleString()}</p>
+                <div class="zen-card p-5 flex justify-between items-center shadow-sm">
+                    <div class="flex items-center gap-3">
+                        <span class="text-xl">☀️</span>
+                        <span class="font-bold text-sm text-slate-500">${item.desc}</span>
                     </div>
-                    <button onclick="window.eliminar('${d.id}', 'gastosFijos')" class="btn-delete">✕</button>
+                    <div class="flex items-center gap-4">
+                        <span class="font-black text-sm text-indigo-400">$${item.monto.toLocaleString('es-MX')}</span>
+                        <button onclick="window.eliminar('${d.id}', 'gastosFijos')" class="btn-delete">✕</button>
+                    </div>
                 </div>`;
             });
-            document.getElementById('lista-fijos').innerHTML = html || "<p class='text-center text-slate-300 text-xs py-10'>Lista vacía</p>";
-            document.getElementById('total-fijos-num').innerText = `$${total.toLocaleString()}`;
-            document.getElementById('limite-presupuesto').innerText = `$${total.toLocaleString()}`;
-            metaCalculada = total;
-            actualizarBarra(document.getElementById('gasto-actual').innerText.replace('$', '').replace(',', ''));
-        });
-
-        // TRANSACCIONES
-        const formTrans = document.getElementById('form-transaccion');
-        formTrans.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            await addDoc(collection(db, "transacciones"), {
-                desc: document.getElementById('desc').value,
-                monto: Number(document.getElementById('monto').value),
-                tipo: document.getElementById('tipo').value,
-                categoria: document.getElementById('categoria').value,
-                fecha: new Date().toISOString()
-            });
-            formTrans.reset();
-        });
-
-        onSnapshot(query(collection(db, "transacciones"), orderBy("fecha", "desc")), (snap) => {
-            let html = ""; let bal = 0; let totalGastos = 0;
-            todosLosMovimientos = [];
-            snap.forEach(d => {
-                const item = d.data();
-                todosLosMovimientos.push({id: d.id, ...item});
-                if(item.tipo === 'egreso') {
-                    bal -= item.monto;
-                    totalGastos += item.monto;
-                } else {
-                    bal += item.monto;
-                }
-                html += `<tr>
-                    <td class="py-3 font-bold text-slate-700">${item.desc}<br><span class="text-[8px] text-slate-400 uppercase">${item.categoria}</span></td>
-                    <td class="py-3 text-right font-black ${item.tipo==='egreso'?'text-red-500':'text-emerald-500'}">
-                        $${item.monto.toLocaleString()}
-                    </td>
-                    <td class="pl-4 text-right">
-                        <button onclick="window.eliminar('${d.id}', 'transacciones')" class="btn-delete ml-auto">✕</button>
-                    </td>
-                </tr>`;
-            });
-            document.getElementById('tabla-movimientos').innerHTML = html;
-            document.getElementById('saldo-total').innerText = `$${bal.toLocaleString()}`;
-            document.getElementById('gasto-actual').innerText = `$${totalGastos.toLocaleString()}`;
-            actualizarBarra(totalGastos);
-        });
-
-        function actualizarBarra(gastado) {
-            const porc = metaCalculada > 0 ? (gastado / metaCalculada) * 100 : 0;
-            const barra = document.getElementById('barra-presupuesto');
-            barra.style.width = Math.min(porc, 100) + '%';
-            barra.className = porc > 100 ? 'bg-red-500 h-3 rounded-full transition-all' : 'bg-indigo-500 h-3 rounded-full transition-all';
-        }
-
-        window.exportarExcel = () => {
-            if(todosLosMovimientos.length === 0) return;
-            const headers = "fecha,desc,monto,tipo,categoria\n";
-            const rows = todosLosMovimientos.map(m => `${m.fecha},"${m.desc}",${m.monto},${m.tipo},${m.categoria}`).join("\n");
-            const blob = new Blob([headers + rows], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement("a");
-            link.href = URL.createObjectURL(blob);
-            link.setAttribute("download", `Respaldo_Casa.csv`);
-            link.click();
-        };
-
-        document.getElementById('import-file').addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            const reader = new FileReader();
-            reader.onload = async function(e) {
-                const lines = e.target.result.split("\n").slice(1);
-                const batch = writeBatch(db);
-                lines.forEach(line => {
-                    const parts = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
-                    if(parts.length >= 5) {
-                        const ref = doc(collection(db, "transacciones"));
-                        batch.set(ref, {
-                            fecha: parts[0].replace(/"/g, ""),
-                            desc: parts[1].replace(/"/g, ""),
-                            monto: Number(parts[2]),
-                            tipo: parts[3].replace(/"/g, ""),
-                            categoria: parts[4].replace(/"/g, "").trim()
-                        });
-                    }
-                });
-                await batch.commit();
-            };
-            reader.readAsText(file);
+            document.getElementById('lista-fijos-container').innerHTML = html;
+            document.getElementById('total-fijos-num').innerText = `$${total.toLocaleString('es-MX', {minimumFractionDigits:2})}`;
         });
 
     </script>
