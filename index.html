@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Sullybec - Paz Financiera</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
         
@@ -81,6 +82,22 @@
         
         .btn-delete:hover { color: #f87171; }
 
+        /* Estilo para botones de backup */
+        .btn-backup {
+            background: white;
+            border: 1px solid var(--lavender-soft);
+            padding: 0.5rem 0.8rem;
+            border-radius: 0.8rem;
+            font-size: 0.65rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            color: var(--lavender-deep);
+            transition: all 0.2s;
+        }
+        .btn-backup:active { transform: scale(0.95); background: var(--lavender-soft); }
+
         /* Navegación */
         .nav-item {
             display: flex;
@@ -125,12 +142,23 @@
     
     <!-- VISTA 1: RESUMEN -->
     <div id="view-resumen" class="view-content max-w-md mx-auto px-6 pt-10 fade-in">
-        <div class="flex justify-between items-center mb-8">
+        <div class="flex justify-between items-center mb-6">
             <div>
                 <h1 class="text-xl font-extrabold tracking-tight">Todo está bien ✨</h1>
                 <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Sullybec, respira y fluye</p>
             </div>
             <div class="w-11 h-11 rounded-2xl bg-white shadow-sm border border-lavender-soft flex items-center justify-center font-bold text-sm text-indigo-400">SB</div>
+        </div>
+
+        <!-- Botones de Respaldo Excel -->
+        <div class="flex gap-2 mb-6">
+            <button onclick="exportarExcel()" class="btn-backup">
+                <span>📥</span> Guardar Excel
+            </button>
+            <label class="btn-backup cursor-pointer">
+                <span>📤</span> Subir Excel
+                <input type="file" id="importExcel" accept=".xlsx, .xls" class="hidden" onchange="importarExcel(event)">
+            </label>
         </div>
 
         <!-- Tarjeta de Saldo Principal -->
@@ -231,7 +259,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
-        import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc, query, orderBy } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc, query, orderBy, getDocs } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyCRFAaPl2d1ZTy_ZE6uZEpHrffr63MN5Qc",
@@ -245,6 +273,9 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
+        // Variables para exportar
+        let globalTrans = [];
+
         window.switchView = (view) => {
             document.querySelectorAll('.view-content').forEach(v => v.classList.add('hidden'));
             document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
@@ -254,6 +285,43 @@
 
         window.eliminar = async (id, col) => {
             await deleteDoc(doc(db, col, id));
+        };
+
+        // --- EXPORTAR EXCEL ---
+        window.exportarExcel = async () => {
+            const data = globalTrans.map(t => ({
+                Fecha: new Date(t.fecha).toLocaleDateString(),
+                Descripción: t.desc,
+                Tipo: t.tipo === 'egreso' ? 'Gasto' : 'Ingreso',
+                Monto: t.monto
+            }));
+            const ws = XLSX.utils.json_to_sheet(data);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Movimientos");
+            XLSX.writeFile(wb, `Finanzas_Sullybec_${new Date().toLocaleDateString()}.xlsx`);
+        };
+
+        // --- IMPORTAR EXCEL ---
+        window.importarExcel = (e) => {
+            const file = e.target.files[0];
+            const reader = new FileReader();
+            reader.onload = async (event) => {
+                const bstr = event.target.result;
+                const wb = XLSX.read(bstr, { type: 'binary' });
+                const wsname = wb.SheetNames[0];
+                const ws = wb.Sheets[wsname];
+                const data = XLSX.utils.sheet_to_json(ws);
+
+                for (const item of data) {
+                    await addDoc(collection(db, "transacciones"), {
+                        desc: item.Descripción || "Importado",
+                        monto: Number(item.Monto) || 0,
+                        tipo: item.Tipo === 'Ingreso' ? 'ingreso' : 'egreso',
+                        fecha: new Date().toISOString()
+                    });
+                }
+            };
+            reader.readAsBinaryString(file);
         };
 
         // --- LÓGICA DE RESUMEN ---
@@ -270,9 +338,10 @@
         });
 
         onSnapshot(query(collection(db, "transacciones"), orderBy("fecha", "desc")), (snap) => {
-            let html = ""; let bal = 0;
+            let html = ""; let bal = 0; globalTrans = [];
             snap.forEach(d => {
                 const item = d.data();
+                globalTrans.push(item);
                 if(item.tipo === 'egreso') bal -= item.monto;
                 else bal += item.monto;
 
